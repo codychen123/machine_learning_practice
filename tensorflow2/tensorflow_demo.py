@@ -21,22 +21,7 @@ with tf.Session() as sess:
     t_2 = tf.Variable(tf_r)
     print(sess.run(tf_r))
 
+    x = [[1, 2], [1, 2], [1, 2]]
+    y = [[0, 0], [0, 0], [0, 0]]
+    print(sess.run(tf.multiply(x, y)))
 
-def remove_transparency(img_pil, bg_colour=(255, 255, 255)):
-    # Only process if image has transparency
-    if img_pil.mode in ('RGBA', 'LA') or \
-        (img_pil.mode == 'P' and 'transparency' in img_pil.info):
-        # Need to convert to RGBA if LA format due to a bug in PIL (http://stackoverflow.com/a/1963146)
-        alpha = img_pil.convert('RGBA').split()[-1]
-
-        # Create a new background image of our matt color.
-        # Must be RGBA because paste requires both images have the same format
-        # (http://stackoverflow.com/a/8720632  and  http://stackoverflow.com/a/9459208)
-        bg = Image.new("RGBA", img_pil.size, bg_colour + (255,))
-        bg.paste(img_pil, mask=alpha)
-        return bg
-
-    else:
-        return img_pil
-
-remove_transparency()

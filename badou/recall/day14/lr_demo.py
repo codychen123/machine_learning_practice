@@ -3,7 +3,7 @@
 import tensorflow as tf
 import pandas as pd
 
-data_path = r'./ua.base'
+data_path = r'ua.base'
 dt=pd.read_csv(data_path,sep="\t",header=None)
 
 dt.columns=["uid","iid","target","ts"]

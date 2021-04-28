@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
 import pandas as pd
 import numpy as np
 
@@ -30,6 +29,8 @@ feature_map = {}
 # 全局index索引：
 index = 0
 
+# 把uid，iid合并
+# uid->943,iid->1680
 for name in X.columns:
     temp = pd.unique(X[name])
     feature_map[name] = {k: v for k, v in zip(temp, range(index, index + len(temp)))}
@@ -41,19 +42,20 @@ for name in X.columns:
 for name in X.columns:
     X[name + "_index"] = X[name].map(feature_map[name])
 
+# 做了onehot
 train_x = np.array(X[["uid_index", "iid_index"]]).astype(np.int32).reshape((-1, 2))
 
 train_y = np.array(y).astype(np.float32).reshape((-1, 1))
 
 #####################################建模阶段
 # 占位符
-
+# 输入uid，iid的数据去推断label是否点击
 x_input = tf.placeholder(dtype=tf.int32, shape=[None, 2], name="feature")
 y = tf.placeholder(dtype=tf.float32, shape=[None, 1], name="label")
 
 # 初始化呢参数 weight
 
-
+# truncated_normal->产生正态分布的随机数
 weight = tf.Variable(tf.truncated_normal(shape=(index, 1)))
 
 bais = tf.Variable(tf.zeros(shape=[1]))
@@ -61,13 +63,17 @@ bais = tf.Variable(tf.zeros(shape=[1]))
 # 我们要进行加法合并：
 
 # wx+b
-linear = tf.reduce_sum(tf.nn.embedding_lookup(weight, x_input), axis=1) + bais
+# lookup_res->shape=(?,2,1)
+lookup_res = tf.nn.embedding_lookup(weight, x_input)
+linear = tf.reduce_sum(lookup_res, axis=1) + bais
 
 # sigmod(wx+b)
 logit = tf.nn.sigmoid(linear)
 
 # |w|^2
-reg = tf.reduce_sum(tf.multiply(weight, weight))
+# 1.tf.multiply（）两个矩阵中对应元素各自相乘
+mult_res = tf.multiply(weight, weight)
+reg = tf.reduce_sum(mult_res)
 
 # loss -1/batch_size*sum (yi*log(sigmod(wx+b))+(1-yi)*log(1-sigmod(wx+b))
 loss = 1 / 32 * tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=logit)) + 0.1 * reg
@@ -89,7 +95,8 @@ with tf.Session() as sess:
     # 才相当于初始化所有变量
     sess.run(tf.initialize_all_variables())
     for epoch in range(30):
-        for bx, by in batch(np.array(train_x), np.array(train_y)):
+        batch_xy = batch(np.array(train_x), np.array(train_y))
+        for bx, by in batch_xy:
             _, los = sess.run([opt, loss], feed_dict={x_input: bx, y: by})
         los_list.append(los)
         print(los)

@@ -1,15 +1,18 @@
 from gensim.models import word2vec
 import pandas as pd
 
-data_path = r'./ua.base'
+data_path = r'ua.base'
 
 dt = pd.read_csv(data_path,sep="\t",header=None)
 dt.columns=["uid","iid","score","ts"]
+# iid转string类型
 dt["iid"]=dt['iid'].astype("str")
 
+item_groupby_uid = dt.sort_values("ts").groupby("uid")
+#1-> ['172', '168', '165', '156', '196', '166', '187', '14', '127', '250', '181',..]
 item_list = dt.sort_values("ts").groupby("uid")['iid'].apply(list)
 
-out_path=r"./cut_ua.base"
+out_path= r"cut_ua.base"
 with open(out_path,"w",encoding="utf-8") as f:
     for line in item_list:
         if len(line)>2:
@@ -29,6 +32,7 @@ res = w2v.wv.similar_by_word("6")
 
 ####拿出所有的item向量 embedding
 all_item= set(dt["iid"])
+# shape(none,16)
 embedding={}
 for k, _ in w2v.wv.vocab.items():
         # w2v.wv[k],可以得到每个词的词向量
@@ -38,10 +42,10 @@ for k, _ in w2v.wv.vocab.items():
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 with open(out_path,"r+",encoding="utf-8") as f:
-    # cut_item 用户uid集合
+    # cut_item 用户iid集合
     cut_item =f.readlines()
 
-# 用户uid集合
+# 用户iid集合
 item_list_temp = []
 
 for line in cut_item:
@@ -54,10 +58,12 @@ weight_list = tf_idf.toarray()
 
 res1 = weight_list[1][1]
 
+# 用户点击序列
 item_hist_tf_idf_item = {}
 uid = item_list.index
 # weight_list {943,1671}
 for i in range(len(weight_list)):
+    # 1671
     for j in range(len(word_list)):
         if item_hist_tf_idf_item.get(uid[i], -1) == -1:
             item_hist_tf_idf_item[uid[i]] = {}
@@ -72,6 +78,7 @@ uid_near_list = {}
 # 拿出用户索引
 uid_set = item_list.index
 for i in range(len(item_list)):
+    # 获取用户最近点击的5个item
     uid_near_list[uid_set[i]] = item_list.iloc[i][-5:]
 
 print(uid_near_list)

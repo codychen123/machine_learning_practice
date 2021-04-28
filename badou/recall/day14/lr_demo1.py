@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn import metrics
 import numpy as np
 if __name__ == '__main__':
-    path = r"/Users/cody/Desktop/大数据/practiceProject/machine_learning_practice/data/data.csv"
+    path = r"/data/data.csv"
     data = pd.read_csv(path)
 
     X = data[["x1" ,"x2" ,"x3" ,"x4" ,"x5"]]

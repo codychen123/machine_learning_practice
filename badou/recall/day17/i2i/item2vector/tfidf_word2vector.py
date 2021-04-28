@@ -1,7 +1,7 @@
 from gensim.models import word2vec
 import pandas as pd
 
-path=r"/Users/cody/Desktop/大数据/practiceProject/machine_learning_practice/badou/day14/ua.base"
+path= r"/badou/recall/day14/ua.base"
 
 dt = pd.read_csv(path,sep="\t",header=None)
 dt.columns=["uid","iid","score","ts"]
@@ -11,7 +11,7 @@ dt["iid"]=dt['iid'].astype("str")
 item_list = dt.sort_values("ts").groupby("uid")["iid"].apply(list)
 
 #
-out_path = r'/Users/cody/Desktop/大数据/practiceProject/machine_learning_practice/badou/day14/cut_ua.base'
+out_path = r'/badou/recall/day14/cut_ua.base'
 
 with open(out_path,"a+",encoding="utf-8") as f:
     for line in item_list:

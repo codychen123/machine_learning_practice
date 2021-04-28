@@ -55,6 +55,7 @@ class LFM(object):
         :return:
         '''
         # 随机初始化P用户隐式矩阵m*k， Q 物品隐式矩阵n*k。
+        # P->943*10,Q->1680*10
         P, Q = self._init_matrix()
 
         for i in range(self.number_epochs):
@@ -64,11 +65,13 @@ class LFM(object):
             for uid, iid, A_ui,ts in self.dataset.itertuples(index=False):
                 # User-LF P
                 ## Item-LF Q
-                v_pu = P[uid] #用户向量 [1.3,2.4,3.4,4.3]
-                v_qi = Q[iid] #物品向量[1.1,2.1,3.1,4.3]
-                # loss，err (Aij -Ui* Ij )^2
+                # [0.21354014 0.76485103 0.5266528  0.96420896 0.42384425 0.11643642, 0.8602362  0.24738073 0.74989384 0.2872908 ]->10
+                v_pu = P[uid] #用户向量 [1.3,2.4,3.4,4.3],shape(1,10)
+                # [0.16155927 0.06796231 0.4337767  0.18218154 0.8504139  0.5372095, 0.2765949  0.53451693 0.8045312  0.36712977]->10
+                v_qi = Q[iid] #物品向量[1.1,2.1,3.1,4.3],shape(1,10)
+                # loss，err (Aij -Ui* Ij )^2，最小二乘法
                 err = np.float32(A_ui - np.dot(v_pu, v_qi))
-
+                #
                 v_pu = v_pu  + self.alpha * (err * v_qi - self.reg_p * v_pu)
                 v_qi = v_qi+ self.alpha * (err * v_pu - self.reg_q * v_qi)
 
@@ -110,9 +113,9 @@ if __name__ == '__main__':
 
     lfm = LFM(0.01, 0.01, 0.01, 10, 10, ["userId", "movieId", "rating"])
     lfm.fit(dataset)
-
+    # lfm.test()
     print(lfm.Q)
-    while True:1
+    while True:
         uid = input("uid: ")
         iid = input("iid: ")
         print(lfm.predict(int(uid), int(iid)))

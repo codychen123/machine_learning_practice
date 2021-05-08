@@ -27,6 +27,6 @@ if (posNum > 0):
     #遍历预测序列
     for j in range(len(pred_all)):
         if (label_all[j][0] == 1):
-            posRankSum += sortedq.index(j) + 1
+            posRankSum += sortedq.index(pred_all[j][0]) + 1
     auc = (posRankSum - posNum * (posNum + 1) / 2) / (posNum * negNum)
     print("auc:", auc)

@@ -32,6 +32,19 @@ import tensorflow as tf
 #     print(sess.run(t3))
 
 # t1 = tf.zeros([1])
-t1 = tf.constant([1,1,3])
-with tf.Session() as sess:
-    print(sess.run(t1.shape))
+# t1 = tf.constant([1,1,3])
+# with tf.Session() as sess:
+#     print(sess.run(t1.shape))
+
+# import numpy as np
+#
+# labels = [1, 3, 4, 8, 7, 5, 2, 9, 0, 8, 7]
+# one_hot_index = np.arange(len(labels)) * 10 + labels
+#
+# print('one_hot_index:{}'.format(one_hot_index))
+#
+# one_hot = np.zeros((len(labels), 10))
+# one_hot.flat[one_hot_index] = 1
+#
+# print('one_hot:{}'.format(one_hot))
+print(tf.__version__)
